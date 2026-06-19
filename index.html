@@ -191,11 +191,6 @@ body{font-family:Georgia,'Times New Roman',serif;background:var(--paper);color:v
   <div id="sb-setup">
     <label for="reader-name">Your name</label>
     <input id="reader-name" type="text" placeholder="Enter your name to begin" autocomplete="name">
-    <div style="margin-top:8px;display:flex;align-items:center;gap:6px;">
-      <div id="reader-code-display" style="font-family:monospace;font-size:11px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.7);padding:4px 8px;border-radius:4px;flex:1;letter-spacing:.05em;">No code yet</div>
-      <button onclick="showCodeEntry()" title="Enter code from another device" style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.6);padding:4px 8px;border-radius:4px;font-family:Arial,sans-serif;font-size:11px;cursor:pointer;white-space:nowrap;">Switch</button>
-    </div>
-    <div style="font-family:Arial,sans-serif;font-size:10px;color:rgba(255,255,255,.35);margin-top:4px;">Your code — use it on any device to restore your comments</div>
   </div>
   <div id="ch-list"></div>
   <div id="sb-foot">
@@ -257,24 +252,6 @@ body{font-family:Georgia,'Times New Roman',serif;background:var(--paper);color:v
   </div>
 </div>
 
-<!-- Reader Code Entry Modal -->
-<div id="code-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:600;align-items:center;justify-content:center;">
-  <div style="background:#fff;border-radius:10px;padding:24px 22px;width:320px;max-width:90vw;font-family:Arial,sans-serif;">
-    <div style="font-weight:900;color:#1E3A5F;font-size:15px;margin-bottom:6px;">Restore Your Reading</div>
-    <div style="font-size:13px;color:#5a5955;margin-bottom:16px;line-height:1.5;">Enter your reader code to restore your comments and reading position from another device.</div>
-    <input id="code-input" type="text" placeholder="e.g. FOOT-7392" maxlength="9"
-      style="width:100%;border:1px solid #d0cec8;border-radius:4px;padding:9px 11px;font-family:monospace;font-size:16px;letter-spacing:.1em;margin-bottom:8px;text-transform:uppercase;"
-      oninput="this.value=this.value.toUpperCase()" onkeydown="if(event.key==='Enter')codeOk()">
-    <div id="code-err" style="font-size:12px;color:#922;margin-bottom:8px;display:none;">Code not found. Check and try again.</div>
-    <div style="display:flex;gap:8px;">
-      <button onclick="closeCodeModal()" style="background:#F3F2EE;border:1px solid #d0cec8;color:#5a5955;border-radius:4px;padding:9px 14px;font-family:Arial,sans-serif;font-size:13px;cursor:pointer;">Cancel</button>
-      <button onclick="codeOk()" style="flex:1;background:#1E3A5F;color:#fff;border:none;border-radius:4px;padding:9px;font-family:Arial,sans-serif;font-size:13px;font-weight:700;cursor:pointer;">Restore</button>
-    </div>
-    <div style="margin-top:12px;text-align:center;">
-      <button onclick="closeCodeModal();generateNewCode()" style="background:none;border:none;color:#9a9891;font-family:Arial,sans-serif;font-size:11px;cursor:pointer;">Generate a new code instead</button>
-    </div>
-  </div>
-</div>
 
 <div id="pw-modal">
   <div id="pw-box">
@@ -328,10 +305,7 @@ let revReaders = new Set();
 // ── READER NAME ──────────────────────────────────────
 const nameEl = document.getElementById('reader-name');
 nameEl.value = localStorage.getItem('fp_reader') || '';
-nameEl.addEventListener('input', () => {
-  localStorage.setItem('fp_reader', nameEl.value.trim());
-  if (readerCode) cloudSet('profile', { name: nameEl.value.trim(), code: readerCode, created: new Date().toISOString() });
-});
+nameEl.addEventListener('input', () => localStorage.setItem('fp_reader', nameEl.value.trim()));
 function getReader() { return nameEl.value.trim() || 'Anonymous'; }
 
 // ── MOBILE SIDEBAR ───────────────────────────────────
@@ -415,7 +389,6 @@ function loadChapter(chId) {
   closeSidebar();
   // Save last chapter
   localStorage.setItem('fp_lastch_' + getReader(), chId);
-  pushProgressToCloud();
 }
 
 // ── PROGRESS ─────────────────────────────────────────
@@ -493,7 +466,6 @@ function submitComment() {
     mk.textContent = cnt;
   }
   buildChapList();
-  pushCommentsToCloud();
   toast('Comment saved.');
 }
 
@@ -739,246 +711,15 @@ function toast(msg) {
 }
 
 
-// ── READER CODE & CROSS-DEVICE SYNC ──────────────────
-// Each reader has a unique code (e.g. FOOT-7392).
-// All data is stored in the Anthropic artifact persistent storage
-// under keys prefixed with that code, shared=true so it persists
-// across sessions and is retrievable from any device.
-//
-// Storage keys (all shared):
-//   fp:code:{code}:profile   -> { name, code, created }
-//   fp:code:{code}:comments  -> { chId: { paraIdx: [comment,...] } }
-//   fp:code:{code}:progress  -> { lastChapter, scroll:{chId:px}, tts:{chId:idx} }
-
-let readerCode = null;
-let syncComments = {}; // mirror of cloud comments for this reader
-let syncProgress = {}; // mirror of cloud progress
-
-// Generate a reader code: FOOT-XXXX
-function genCode() {
-  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-  let s = 'FOOT-';
-  for (let i=0;i<4;i++) s += chars[Math.floor(Math.random()*chars.length)];
-  return s;
-}
-
-function displayCode(code) {
-  document.getElementById('reader-code-display').textContent = code || 'No code yet';
-}
-
-async function initReaderCode() {
-  // Check localStorage for existing code
-  let code = localStorage.getItem('fp_code');
-  if (code) {
-    readerCode = code;
-    displayCode(code);
-    await pullFromCloud();
-  } else {
-    await generateNewCode();
-  }
-}
-
-async function generateNewCode() {
-  const code = genCode();
-  readerCode = code;
-  localStorage.setItem('fp_code', code);
-  displayCode(code);
-  // Save profile to cloud
-  const profile = { name: getReader(), code, created: new Date().toISOString() };
-  await cloudSet('profile', profile);
-  showToast('Your reader code: ' + code);
-}
-
-// ── CLOUD STORAGE (Google Apps Script) ───────────────
-// Uses the same Apps Script endpoint as "Send to Adam"
-// Stores reader data in a Google Sheet in the feedback folder
-
-async function cloudGet(type) {
-  if (!readerCode) return null;
-  try {
-    // Use no-cors POST — response is opaque so we can't read it directly.
-    // Instead we store a local pending flag and check localStorage after save.
-    // For validation (codeOk), we use a different approach — see cloudValidate().
-    await fetch(APPS_SCRIPT_URL, {
-      method: 'POST',
-      mode: 'no-cors',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'getReader', code: readerCode, type })
-    });
-    return null; // can't read opaque response
-  } catch(e) { return null; }
-}
-
-// Validate a code exists by attempting to save a profile ping
-// and checking if the local storage has been set by a prior session
-async function cloudValidate(code) {
-  // First check: does localStorage have any data saved under this code?
-  // If the code was generated on this device, it's valid by definition.
-  // If entered manually, we attempt a save and trust it succeeded.
-  try {
-    await fetch(APPS_SCRIPT_URL, {
-      method: 'POST',
-      mode: 'no-cors',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        action: 'saveReader',
-        code: code,
-        name: localStorage.getItem('fp_reader') || 'Unknown'
-      })
-    });
-    return true; // trust it worked — no-cors means we can't verify but Apps Script will handle it
-  } catch(e) { return false; }
-}
-
-async function cloudSet(type, data) {
-  if (!readerCode) return false;
-  try {
-    await fetch(APPS_SCRIPT_URL, {
-      method: 'POST',
-      mode: 'no-cors',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        action: 'saveReader',
-        code: readerCode,
-        [type]: data
-      })
-    });
-    return true;
-  } catch(e) { return false; }
-}
-
-async function pullFromCloud() {
-  if (!readerCode) return;
-  try {
-    // Pull profile (get name if set on another device)
-    const profile = await cloudGet('profile');
-    if (profile && profile.name && !localStorage.getItem('fp_reader')) {
-      document.getElementById('reader-name').value = profile.name;
-      localStorage.setItem('fp_reader', profile.name);
-    }
-    // Pull comments
-    const cloudComments = await cloudGet('comments');
-    if (cloudComments) {
-      syncComments = cloudComments;
-      mergeCloudComments(cloudComments);
-    }
-    // Pull progress
-    const cloudProgress = await cloudGet('progress');
-    if (cloudProgress) {
-      syncProgress = cloudProgress;
-      if (cloudProgress.lastChapter) {
-        localStorage.setItem('fp_lastch_' + getReader(), cloudProgress.lastChapter);
-      }
-      if (cloudProgress.scroll) {
-        Object.entries(cloudProgress.scroll).forEach(([chId, px]) => {
-          localStorage.setItem(scrollKey(chId), px);
-        });
-      }
-      if (cloudProgress.tts) {
-        Object.entries(cloudProgress.tts).forEach(([chId, idx]) => {
-          localStorage.setItem(ttsKey(chId), idx);
-        });
-      }
-    }
-    showToast('Synced — ' + (Object.keys(syncComments).length ? 'comments restored' : 'ready to read'));
-  } catch(e) {
-    // Cloud unavailable — localStorage still works
-  }
-}
-
-function mergeCloudComments(cloudComments) {
-  // Merge cloud comments into localStorage without duplicates
-  Object.entries(cloudComments).forEach(([chId, paras]) => {
-    Object.entries(paras).forEach(([paraIdx, comments]) => {
-      comments.forEach(c => {
-        const k = cKey(c.reader, c.chapterId, c.paraIdx, c.timestamp);
-        if (!localStorage.getItem(k)) localStorage.setItem(k, JSON.stringify(c));
-      });
-    });
-  });
-  buildChapList();
-}
-
-// Push all comments to cloud
-async function pushCommentsToCloud() {
-  if (!readerCode) return;
-  const reader = getReader();
-  const all = allMyComments().filter(c => c.reader === reader);
-  // Build structured object
-  const structured = {};
-  all.forEach(c => {
-    if (!structured[c.chapterId]) structured[c.chapterId] = {};
-    if (!structured[c.chapterId][c.paraIdx]) structured[c.chapterId][c.paraIdx] = [];
-    const exists = structured[c.chapterId][c.paraIdx].some(x => x.timestamp === c.timestamp);
-    if (!exists) structured[c.chapterId][c.paraIdx].push(c);
-  });
-  await cloudSet('comments', structured);
-}
-
-// Push progress to cloud
-async function pushProgressToCloud() {
-  if (!readerCode) return;
-  const reader = getReader();
-  const progress = {
-    lastChapter: curChapter,
-    scroll: {},
-    tts: {},
-    updated: new Date().toISOString(),
-  };
-  // Collect all scroll positions
-  CHAPTERS.forEach(ch => {
-    const s = localStorage.getItem(scrollKey(ch.id));
-    if (s) progress.scroll[ch.id] = parseInt(s);
-    const t = localStorage.getItem(ttsKey(ch.id));
-    if (t) progress.tts[ch.id] = parseInt(t);
-  });
-  await cloudSet('progress', progress);
-}
-
-// ── CODE ENTRY MODAL ──────────────────────────────────
-function showCodeEntry() {
-  document.getElementById('code-input').value = '';
-  document.getElementById('code-err').style.display = 'none';
-  document.getElementById('code-modal').style.display = 'flex';
-  setTimeout(() => document.getElementById('code-input').focus(), 100);
-}
-
-function closeCodeModal() {
-  document.getElementById('code-modal').style.display = 'none';
-}
-
-async function codeOk() {
-  const input = document.getElementById('code-input').value.trim().toUpperCase();
-  if (!input || input.length < 8) {
-    document.getElementById('code-err').style.display = 'block';
-    return;
-  }
-  // Switch to the entered code and attempt sync
-  // Since we can't verify via CORS, we trust the code and pull what we can
-  const oldCode = readerCode;
-  readerCode = input;
-  localStorage.setItem('fp_code', input);
-  closeCodeModal();
-  showToast('Switching to code ' + input + '…');
-  // Save current name under new code
-  await cloudSet('name', getReader());
-  buildChapList();
-  const lastCh = localStorage.getItem('fp_lastch_' + getReader());
-  if (lastCh && CHAPTERS.find(c => c.id === lastCh)) loadChapter(lastCh);
-  showToast('Code switched. Your comments will sync going forward.');
-}
-
 // ── BOOKMARKS ────────────────────────────────────────
 // Scroll position: saved per reader+chapter
 function scrollKey(chId) { return `fp_scroll_${getReader()}_${chId}`; }
 function ttsKey(chId)    { return `fp_tts_${getReader()}_${chId}`; }
 
-let scrollSyncCount = 0;
 function saveScrollPos() {
   if (!curChapter) return;
   const el = document.getElementById('reader');
   localStorage.setItem(scrollKey(curChapter), el.scrollTop);
-  if (++scrollSyncCount % 15 === 0) pushProgressToCloud();
 }
 
 function restoreScrollPos(chId) {
@@ -994,7 +735,6 @@ function saveTtsPos() {
   if (!curChapter) return;
   if (ttsParaIdx > 0) {
     localStorage.setItem(ttsKey(curChapter), ttsParaIdx);
-    pushProgressToCloud();
   }
 }
 
@@ -1056,17 +796,11 @@ function resumeChoice(choice) {
 }
 
 // ── INIT ─────────────────────────────────────────────
-window.addEventListener('pagehide', () => { saveTtsPos(); pushProgressToCloud(); pushCommentsToCloud(); });
-window.addEventListener('beforeunload', () => { saveTtsPos(); pushProgressToCloud(); });
+window.addEventListener('pagehide', saveTtsPos);
+window.addEventListener('beforeunload', saveTtsPos);
 buildChapList();
-// Restore last chapter for this reader
 const lastCh = localStorage.getItem('fp_lastch_' + (localStorage.getItem('fp_reader')||''));
-const _initLastCh = lastCh && CHAPTERS.find(c=>c.id===lastCh) ? lastCh : CHAPTERS[0].id;
-// Init reader code (async) — loads chapter after cloud sync
-initReaderCode().then(() => {
-  const afterSyncLastCh = localStorage.getItem('fp_lastch_' + getReader());
-  loadChapter(afterSyncLastCh && CHAPTERS.find(c=>c.id===afterSyncLastCh) ? afterSyncLastCh : _initLastCh);
-});
+loadChapter(lastCh && CHAPTERS.find(c=>c.id===lastCh) ? lastCh : CHAPTERS[0].id);
 </script>
 </body>
 </html>
