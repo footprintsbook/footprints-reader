@@ -177,7 +177,6 @@ body{font-family:Georgia,'Times New Roman',serif;background:var(--paper);color:v
   #cpanel{width:100vw;max-width:100vw;}
 }
 </style>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 
@@ -790,46 +789,37 @@ async function generateNewCode() {
   showToast('Your reader code: ' + code);
 }
 
-// ── CLOUD STORAGE (Supabase JS Client) ───────────────
-const SUPABASE_URL = 'https://hrcbffgigjnzwbbjjscd.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_2aJYgADOBFco_pfGRqV0Wg_5H1hlVNB';
-
-// Initialize Supabase client (uses new key format automatically)
-let _sb = null;
-function getSB() {
-  if (!_sb && window.supabase) {
-    _sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-  }
-  return _sb;
-}
+// ── CLOUD STORAGE (Google Apps Script) ───────────────
+// Uses the same Apps Script endpoint as "Send to Adam"
+// Stores reader data in a Google Sheet in the feedback folder
 
 async function cloudGet(type) {
   if (!readerCode) return null;
-  const sb = getSB();
-  if (!sb) return null;
   try {
-    const { data, error } = await sb
-      .from('reader_data')
-      .select(type)
-      .eq('code', readerCode)
-      .single();
-    if (error || !data) return null;
-    return data[type];
+    const resp = await fetch(
+      APPS_SCRIPT_URL + '?code=' + encodeURIComponent(readerCode),
+      { method: 'GET' }
+    );
+    const data = await resp.json();
+    if (!data.success) return null;
+    return data[type] || null;
   } catch(e) { return null; }
 }
 
 async function cloudSet(type, data) {
   if (!readerCode) return false;
-  const sb = getSB();
-  if (!sb) return false;
   try {
-    const { error } = await sb
-      .from('reader_data')
-      .upsert(
-        { code: readerCode, [type]: data, updated_at: new Date().toISOString() },
-        { onConflict: 'code', ignoreDuplicates: false }
-      );
-    return !error;
+    await fetch(APPS_SCRIPT_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: 'saveReader',
+        code: readerCode,
+        [type]: data
+      })
+    });
+    return true;
   } catch(e) { return false; }
 }
 
