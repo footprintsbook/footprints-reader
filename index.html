@@ -49,16 +49,16 @@ body{font-family:Georgia,'Times New Roman',serif;background:var(--paper);color:v
 #main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0;}
 
 /* TTS bar */
-#tts-bar{background:var(--cream);border-bottom:1px solid var(--hairline);padding:6px 12px;display:flex;flex-direction:column;gap:5px;flex-shrink:0;}
-#tts-row1{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
-#tts-row2{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
-#tts-progress-wrap{flex:1;min-width:120px;display:flex;flex-direction:column;gap:2px;}
-#tts-progress-bar{height:6px;background:var(--hairline);border-radius:3px;cursor:pointer;position:relative;}
-#tts-progress-fill{height:100%;background:var(--gold);border-radius:3px;width:0%;transition:width .3s;}
+#tts-bar{background:var(--cream);border-bottom:1px solid var(--hairline);padding:6px 12px 4px;display:flex;flex-direction:column;gap:4px;flex-shrink:0;}
+#tts-row1{display:flex;align-items:center;gap:8px;flex-wrap:nowrap;overflow:hidden;}
+#tts-row2{display:flex;align-items:center;gap:0;width:100%;}
+#tts-progress-wrap{flex:1;display:flex;flex-direction:column;gap:2px;width:100%;}
+#tts-progress-bar{height:8px;background:var(--hairline);border-radius:4px;cursor:pointer;position:relative;width:100%;}
+#tts-progress-fill{height:100%;background:var(--gold);border-radius:4px;width:0%;transition:width .3s;}
 #tts-progress-label{font-family:Arial,sans-serif;font-size:10px;color:var(--muted);}
-#voice-select{font-family:Arial,sans-serif;font-size:11px;color:var(--muted);background:transparent;border:1px solid var(--hairline);border-radius:4px;padding:3px 6px;cursor:pointer;max-width:140px;}
-#tts-speed-wrap{display:flex;align-items:center;gap:5px;font-family:Arial,sans-serif;font-size:11px;color:var(--muted);}
-#tts-speed{width:70px;}
+#voice-select{font-family:Arial,sans-serif;font-size:11px;color:var(--muted);background:transparent;border:1px solid var(--hairline);border-radius:4px;padding:3px 6px;cursor:pointer;max-width:130px;flex-shrink:0;}
+#tts-speed-wrap{display:flex;align-items:center;gap:4px;font-family:Arial,sans-serif;font-size:11px;color:var(--muted);flex-shrink:0;}
+#tts-speed{width:65px;}
 #tts-bar button{background:var(--navy);color:#fff;border:none;border-radius:4px;padding:6px 14px;font-family:Arial,sans-serif;font-size:12px;font-weight:700;cursor:pointer;}
 #tts-bar button:hover{background:var(--navy2);}
 #tts-bar button.stop{background:#922;}
@@ -76,6 +76,11 @@ body{font-family:Georgia,'Times New Roman',serif;background:var(--paper);color:v
 
 /* Reader */
 #reader{flex:1;overflow-y:auto;padding:0 10% 44px;scroll-behavior:smooth;}
+/* Persistent visible scrollbar */
+#reader::-webkit-scrollbar{width:6px;}
+#reader::-webkit-scrollbar-track{background:var(--hairline);border-radius:3px;}
+#reader::-webkit-scrollbar-thumb{background:var(--gold);border-radius:3px;opacity:.7;}
+#reader::-webkit-scrollbar-thumb:hover{background:var(--navy);}
 @media(max-width:800px){#reader{padding:28px 5%;}}
 #ch-title{font-family:Arial,sans-serif;font-weight:900;font-size:24px;color:var(--navy);margin-bottom:32px;padding-bottom:14px;border-bottom:2px solid var(--hairline);line-height:1.2;position:sticky;top:0;background:var(--paper);z-index:40;padding-top:8px;margin-top:0;box-shadow:0 2px 8px rgba(250,250,247,.95);}
 .para-wrap{position:relative;}
@@ -185,10 +190,12 @@ body{font-family:Georgia,'Times New Roman',serif;background:var(--paper);color:v
   /* Reader padding to clear hamburger */
   #reader{padding:0 5% 24px;}
   /* TTS bar compact */
-  #tts-bar{padding:6px 10px 6px 10px;gap:4px;}
-  #tts-row1{padding-left:44px;}
+  #tts-bar{padding:6px 8px 4px;gap:3px;}
+  #tts-row1{padding-left:46px;gap:6px;}
+  #tts-row2{padding-left:46px;}
   #tts-status{display:none;}
-  #voice-select{max-width:90px;font-size:10px;}
+  #voice-select{max-width:85px;font-size:10px;}
+  #tts-speed{width:55px;}
   /* Comment panel full width */
   #cpanel{width:100vw;max-width:100vw;}
 }
@@ -225,15 +232,12 @@ body{font-family:Georgia,'Times New Roman',serif;background:var(--paper);color:v
       <button id="tts-btn" onclick="ttsToggle()">▶ Read Aloud</button>
       <button id="tts-stop-btn" style="display:none" class="stop" onclick="ttsStop()">■ Stop</button>
       <select id="voice-select" onchange="ttsVoiceChange(this.value)" title="Select voice"></select>
+      <div id="tts-speed-wrap">Speed <input type="range" id="tts-speed" min="0.5" max="2" step="0.1" value="1.1" oninput="ttsSpeedChange(this.value)"><span id="tts-spd-lbl">1.1×</span></div>
       <span id="tts-status"></span>
     </div>
     <div id="tts-row2">
-      <div id="tts-speed-wrap">
-        Speed <input type="range" id="tts-speed" min="0.5" max="2" step="0.1" value="1.1" oninput="ttsSpeedChange(this.value)">
-        <span id="tts-spd-lbl">1.1×</span>
-      </div>
       <div id="tts-progress-wrap">
-        <div id="tts-progress-bar" onclick="ttsSeek(event)" title="Click to jump">
+        <div id="tts-progress-bar" onclick="ttsSeek(event)" title="Click to jump to position">
           <div id="tts-progress-fill"></div>
         </div>
         <div id="tts-progress-label">¶ 0 / 0</div>
@@ -600,7 +604,17 @@ function ttsReadPara(idx) {
   ttsParaIdx = idx;
   document.querySelectorAll('.para-text').forEach((p,i) => p.classList.toggle('tts-active', i===idx));
   const wrap = document.querySelector(`.para-wrap[data-idx="${idx}"]`);
-  if (wrap) wrap.scrollIntoView({ behavior:'smooth', block:'center' });
+  if (wrap) {
+    // Smooth scroll keeping active paragraph centered in view
+    wrap.scrollIntoView({ behavior:'smooth', block:'nearest' });
+    // If paragraph is near top or bottom, center it
+    const rect = wrap.getBoundingClientRect();
+    const reader = document.getElementById('reader');
+    const rRect = reader.getBoundingClientRect();
+    if (rect.top < rRect.top + 80 || rect.bottom > rRect.bottom - 80) {
+      wrap.scrollIntoView({ behavior:'smooth', block:'center' });
+    }
+  }
   document.getElementById('tts-status').textContent = `¶ ${idx+1} / ${paras.length}`;
   // Wait for voices to load
   const go = () => {
@@ -956,7 +970,17 @@ function ttsSeek(e) {
   else {
     // Scroll to paragraph
     const wrap = document.querySelector(`.para-wrap[data-idx="${targetIdx}"]`);
-    if (wrap) wrap.scrollIntoView({ behavior:'smooth', block:'center' });
+    if (wrap) {
+    // Smooth scroll keeping active paragraph centered in view
+    wrap.scrollIntoView({ behavior:'smooth', block:'nearest' });
+    // If paragraph is near top or bottom, center it
+    const rect = wrap.getBoundingClientRect();
+    const reader = document.getElementById('reader');
+    const rRect = reader.getBoundingClientRect();
+    if (rect.top < rRect.top + 80 || rect.bottom > rRect.bottom - 80) {
+      wrap.scrollIntoView({ behavior:'smooth', block:'center' });
+    }
+  }
   }
 }
 
