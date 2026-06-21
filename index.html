@@ -938,8 +938,9 @@ function buildVoiceSelector() {
     v.lang.startsWith('en') || v.lang === '' || v.lang.startsWith('en-')
   );
 
-  // If 1 or fewer unique English voices, hide selector and use what we have
-  if (english.length <= 1) {
+  // On mobile/Android, voices all sound identical — hide selector
+  const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+  if (isMobile || english.length <= 1) {
     sel.style.display = 'none';
     selectedVoice = english[0] || unique[0] || null;
     return;
