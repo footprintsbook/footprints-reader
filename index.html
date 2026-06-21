@@ -922,56 +922,49 @@ function buildVoiceSelector() {
   const voices = window.speechSynthesis.getVoices();
   if (!voices.length) return;
   voicesLoaded = true;
-  const { female, male } = pickTopVoices(voices);
-  const allVoices = [...female, ...male];
   const sel = document.getElementById('voice-select');
   sel.innerHTML = '';
 
-  // If only one distinct voice, hide the selector entirely
-  if (allVoices.length <= 1) {
+  // Deduplicate: keep only voices with unique names
+  const seen = new Set();
+  const unique = voices.filter(v => {
+    if (seen.has(v.name)) return false;
+    seen.add(v.name);
+    return true;
+  });
+
+  // Filter to English voices only
+  const english = unique.filter(v =>
+    v.lang.startsWith('en') || v.lang === '' || v.lang.startsWith('en-')
+  );
+
+  // If 1 or fewer unique English voices, hide selector and use what we have
+  if (english.length <= 1) {
     sel.style.display = 'none';
-    if (allVoices.length === 1) selectedVoice = allVoices[0];
+    selectedVoice = english[0] || unique[0] || null;
     return;
   }
   sel.style.display = '';
 
-  if (female.length) {
-    const og = document.createElement('optgroup');
-    og.label = female.length > 1 ? 'Female' : 'Voice';
-    female.forEach(v => {
-      const opt = document.createElement('option');
-      opt.value = v.name;
-      opt.textContent = v.name
-        .replace('Microsoft ','').replace(' Online','')
-        .replace('Google ','').replace(' (Enhanced)','')
-        .replace(' (Premium)','');
-      og.appendChild(opt);
-    });
-    sel.appendChild(og);
-  }
-  if (male.length) {
-    const og = document.createElement('optgroup');
-    og.label = male.length > 1 ? 'Male' : 'Voice';
-    male.forEach(v => {
-      const opt = document.createElement('option');
-      opt.value = v.name;
-      opt.textContent = v.name
-        .replace('Microsoft ','').replace(' Online','')
-        .replace('Google ','').replace(' (Enhanced)','')
-        .replace(' (Premium)','');
-      og.appendChild(opt);
-    });
-    sel.appendChild(og);
-  }
+  // Show all unique English voices (up to 6)
+  english.slice(0, 6).forEach(v => {
+    const opt = document.createElement('option');
+    opt.value = v.name;
+    opt.textContent = v.name
+      .replace('Microsoft ', '').replace(' Online', '')
+      .replace('Google ', '').replace(' (Enhanced)', '')
+      .replace(' (Premium)', '').replace(' (Natural)', '');
+    sel.appendChild(opt);
+  });
 
   // Restore saved preference
   const saved = localStorage.getItem('fp_voice');
   if (saved) {
-    const match = voices.find(v => v.name === saved);
+    const match = english.find(v => v.name === saved);
     if (match) { sel.value = saved; selectedVoice = match; return; }
   }
-  // Default: first voice available
-  if (allVoices.length) { selectedVoice = allVoices[0]; sel.value = allVoices[0].name; }
+  // Default: first available
+  if (english.length) { selectedVoice = english[0]; sel.value = english[0].name; }
 }
 
 function ttsVoiceChange(name) {
