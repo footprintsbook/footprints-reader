@@ -225,8 +225,8 @@ body{font-family:Georgia,'Times New Roman',serif;background:var(--paper);color:v
       <div id="tts-progress-label">¶ 0 / 0</div>
     </div>
     <div id="tts-speed-wrap">
-      Speed <input type="range" id="tts-speed" min="0.5" max="2" step="0.1" value="0.9" oninput="ttsSpeedChange(this.value)">
-      <span id="tts-spd-lbl">0.9×</span>
+      Speed <input type="range" id="tts-speed" min="0.5" max="2" step="0.1" value="1.1" oninput="ttsSpeedChange(this.value)">
+      <span id="tts-spd-lbl">1.1×</span>
     </div>
     <select id="voice-select" onchange="ttsVoiceChange(this.value)" title="Select voice"></select>
     <span id="tts-status"></span>
@@ -314,7 +314,7 @@ let curPara = null;
 let commentType = 'General';
 let ttsPlaying = false;
 let ttsParaIdx = 0;
-let ttsSpd = 0.9;
+let ttsSpd = parseFloat(localStorage.getItem('fp_speed') || '1.1');
 let ttsUtt = null;
 let reviewMode = false;
 let revComments = {}; // { chId: { paraIdx: [comment,...] } }
@@ -610,6 +610,7 @@ function ttsReadPara(idx) {
 }
 function ttsSpeedChange(v) {
   ttsSpd = parseFloat(v);
+  localStorage.setItem('fp_speed', v);
   document.getElementById('tts-spd-lbl').textContent = ttsSpd.toFixed(1) + '×';
 }
 
@@ -1043,6 +1044,15 @@ function resumeChoice(choice) {
 window.addEventListener('pagehide', saveTtsPos);
 window.addEventListener('beforeunload', saveTtsPos);
 // Build voice selector when voices are ready
+// Restore saved speed
+const savedSpd = localStorage.getItem('fp_speed');
+if (savedSpd) {
+  ttsSpd = parseFloat(savedSpd);
+  const spdSlider = document.getElementById('tts-speed');
+  const spdLbl = document.getElementById('tts-spd-lbl');
+  if (spdSlider) spdSlider.value = ttsSpd;
+  if (spdLbl) spdLbl.textContent = ttsSpd.toFixed(1) + '×';
+}
 if (window.speechSynthesis) {
   if (window.speechSynthesis.getVoices().length) {
     buildVoiceSelector();
