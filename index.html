@@ -35,6 +35,8 @@ body{font-family:Georgia,'Times New Roman',serif;background:var(--paper);color:v
 .ch-btn:hover{background:rgba(255,255,255,.08);color:#fff;}
 .ch-btn.active{background:rgba(255,255,255,.14);color:#fff;font-weight:700;}
 .ch-cnt{float:right;background:var(--gold);color:var(--navy);border-radius:10px;font-size:10px;font-weight:900;padding:1px 6px;font-family:Arial,sans-serif;}
+.ch-read-dot{float:right;width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.2);margin:5px 4px 0 0;}
+.ch-read-dot.read{background:var(--gold);}
 #sb-foot{padding:12px 16px;border-top:1px solid rgba(255,255,255,.12);display:flex;flex-direction:column;gap:7px;}
 .sb-btn{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);color:#fff;padding:7px 10px;border-radius:4px;font-family:Arial,sans-serif;font-size:12px;cursor:pointer;text-align:center;transition:background .12s;}
 .sb-btn:hover{background:rgba(255,255,255,.2);}
@@ -47,7 +49,12 @@ body{font-family:Georgia,'Times New Roman',serif;background:var(--paper);color:v
 #main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0;}
 
 /* TTS bar */
-#tts-bar{background:var(--cream);border-bottom:1px solid var(--hairline);padding:8px 24px;display:flex;align-items:center;gap:10px;flex-shrink:0;flex-wrap:wrap;}
+#tts-bar{background:var(--cream);border-bottom:1px solid var(--hairline);padding:8px 24px;display:flex;align-items:center;gap:10px;flex-shrink:0;flex-wrap:wrap;position:relative;}
+#tts-progress-wrap{flex:1;min-width:80px;display:flex;flex-direction:column;gap:2px;}
+#tts-progress-bar{height:4px;background:var(--hairline);border-radius:2px;cursor:pointer;position:relative;}
+#tts-progress-fill{height:100%;background:var(--gold);border-radius:2px;width:0%;transition:width .3s;}
+#tts-progress-label{font-family:Arial,sans-serif;font-size:10px;color:var(--muted);}
+#voice-select{font-family:Arial,sans-serif;font-size:11px;color:var(--muted);background:transparent;border:1px solid var(--hairline);border-radius:4px;padding:3px 6px;cursor:pointer;max-width:130px;}
 #tts-bar button{background:var(--navy);color:#fff;border:none;border-radius:4px;padding:6px 14px;font-family:Arial,sans-serif;font-size:12px;font-weight:700;cursor:pointer;}
 #tts-bar button:hover{background:var(--navy2);}
 #tts-bar button.stop{background:#922;}
@@ -66,9 +73,10 @@ body{font-family:Georgia,'Times New Roman',serif;background:var(--paper);color:v
 /* Reader */
 #reader{flex:1;overflow-y:auto;padding:44px 10%;scroll-behavior:smooth;}
 @media(max-width:800px){#reader{padding:28px 5%;}}
-#ch-title{font-family:Arial,sans-serif;font-weight:900;font-size:24px;color:var(--navy);margin-bottom:32px;padding-bottom:14px;border-bottom:2px solid var(--hairline);line-height:1.2;}
+#ch-title{font-family:Arial,sans-serif;font-weight:900;font-size:24px;color:var(--navy);margin-bottom:32px;padding-bottom:14px;border-bottom:2px solid var(--hairline);line-height:1.2;position:sticky;top:0;background:var(--paper);z-index:40;padding-top:12px;}
 .para-wrap{position:relative;}
 .para-text{font-size:17px;line-height:1.78;color:var(--ink);padding:8px 40px 8px 12px;border-left:3px solid transparent;cursor:pointer;border-radius:2px;transition:background .12s,border-color .12s;}
+.para-text.section-heading{font-family:Arial,sans-serif;font-weight:900;font-size:15px;color:var(--navy);border-left-color:var(--hairline);margin-top:12px;letter-spacing:.01em;}
 .para-text:hover{background:rgba(30,58,95,.04);border-left-color:rgba(30,58,95,.25);}
 .para-text.tts-active{background:rgba(184,144,96,.13);border-left-color:var(--gold);}
 .para-text.has-comment{border-left-color:var(--gold);}
@@ -92,10 +100,12 @@ body{font-family:Georgia,'Times New Roman',serif;background:var(--paper);color:v
 #cp-head-txt{flex:1;}
 #cp-head h3{font-family:Arial,sans-serif;font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.1em;color:var(--gold);margin-bottom:3px;}
 #cp-preview{font-size:12px;color:rgba(255,255,255,.6);font-style:italic;line-height:1.4;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}
-#cp-close{background:none;border:none;color:rgba(255,255,255,.55);font-size:22px;cursor:pointer;padding:0;line-height:1;flex-shrink:0;}
-#cp-close:hover{color:#fff;}
+#cp-close{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);color:#fff;font-size:18px;cursor:pointer;padding:6px 12px;line-height:1;flex-shrink:0;border-radius:4px;font-family:Arial,sans-serif;font-weight:700;}
+#cp-close:hover{background:rgba(255,255,255,.28);}
 #cp-list{flex:1;overflow-y:auto;padding:14px;}
-.cp-item{background:var(--cream);border-radius:5px;padding:11px 13px;margin-bottom:9px;border-left:3px solid var(--gold);}
+.cp-item{background:var(--cream);border-radius:5px;padding:11px 13px;margin-bottom:9px;border-left:3px solid var(--gold);position:relative;}
+.cp-delete{position:absolute;top:8px;right:8px;background:none;border:none;color:#aaa;font-size:16px;cursor:pointer;padding:4px 8px;border-radius:3px;line-height:1;}
+.cp-delete:hover{background:rgba(180,0,0,.1);color:#922;}
 .cp-meta{font-family:Arial,sans-serif;font-size:11px;color:var(--muted);margin-bottom:5px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:4px;}
 .cp-reader{font-weight:700;color:var(--navy);}
 .cp-type{background:var(--navy);color:#fff;border-radius:3px;padding:1px 5px;font-size:10px;font-weight:700;}
@@ -171,8 +181,9 @@ body{font-family:Georgia,'Times New Roman',serif;background:var(--paper);color:v
   /* Reader padding to clear hamburger */
   #reader{padding:52px 5% 24px;}
   /* TTS bar compact */
-  #tts-bar{padding:6px 10px;gap:6px;}
+  #tts-bar{padding:6px 10px 6px 52px;gap:6px;}
   #tts-status{display:none;}
+  #voice-select{max-width:90px;font-size:10px;}
   /* Comment panel full width */
   #cpanel{width:100vw;max-width:100vw;}
 }
@@ -207,10 +218,17 @@ body{font-family:Georgia,'Times New Roman',serif;background:var(--paper);color:v
   <div id="tts-bar">
     <button id="tts-btn" onclick="ttsToggle()">▶ Read Aloud</button>
     <button id="tts-stop-btn" style="display:none" class="stop" onclick="ttsStop()">■ Stop</button>
+    <div id="tts-progress-wrap">
+      <div id="tts-progress-bar" onclick="ttsSeek(event)" title="Click to jump">
+        <div id="tts-progress-fill"></div>
+      </div>
+      <div id="tts-progress-label">¶ 0 / 0</div>
+    </div>
     <div id="tts-speed-wrap">
       Speed <input type="range" id="tts-speed" min="0.5" max="2" step="0.1" value="0.9" oninput="ttsSpeedChange(this.value)">
       <span id="tts-spd-lbl">0.9×</span>
     </div>
+    <select id="voice-select" onchange="ttsVoiceChange(this.value)" title="Select voice"></select>
     <span id="tts-status"></span>
   </div>
   <div id="rev-bar">
@@ -235,7 +253,7 @@ body{font-family:Georgia,'Times New Roman',serif;background:var(--paper);color:v
       <h3>Add a Comment</h3>
       <div id="cp-preview"></div>
     </div>
-    <button id="cp-close" onclick="closePanel()">×</button>
+    <button id="cp-close" onclick="closePanel()">✕ Close</button>
   </div>
   <div id="cp-list"></div>
   <div id="cp-new">
@@ -331,7 +349,8 @@ function buildChapList() {
     const cnt = reviewMode ? revChCount(ch.id) : myChCount(ch.id);
     const btn = document.createElement('button');
     btn.className = 'ch-btn' + (ch.id === curChapter ? ' active' : '');
-    btn.innerHTML = esc(ch.title) + (cnt > 0 ? `<span class="ch-cnt">${cnt}</span>` : '');
+    const rdot = `<span class="ch-read-dot${isChapterRead(ch.id)?' read':''}"></span>`;
+    btn.innerHTML = esc(ch.title) + (cnt > 0 ? `<span class="ch-cnt">${cnt}</span>` : '') + rdot;
     btn.onclick = () => loadChapter(ch.id);
     list.appendChild(btn);
   });
@@ -340,6 +359,7 @@ function buildChapList() {
 // ── LOAD CHAPTER ─────────────────────────────────────
 function loadChapter(chId) {
   ttsStop();
+  sessionPaused = false;
   closePanel();
   curChapter = chId;
   const ch = CHAPTERS.find(c => c.id === chId);
@@ -369,9 +389,11 @@ function loadChapter(chId) {
       }
     } else {
       const cnt = myParaCount(chId, idx);
+      const displayText = convertSectionHeadings(text);
+      const isHeading = isSectionHeading(text);
       const p = document.createElement('div');
-      p.className = 'para-text' + (cnt > 0 ? ' has-comment' : '');
-      p.textContent = text;
+      p.className = 'para-text' + (cnt > 0 ? ' has-comment' : '') + (isHeading ? ' section-heading' : '');
+      p.textContent = displayText;
       p.onclick = () => openPanel(idx);
       wrap.appendChild(p);
       if (cnt > 0) {
@@ -389,6 +411,7 @@ function loadChapter(chId) {
   closeSidebar();
   // Save last chapter
   localStorage.setItem('fp_lastch_' + getReader(), chId);
+  markChapterRead(chId);
 }
 
 // ── PROGRESS ─────────────────────────────────────────
@@ -438,9 +461,34 @@ function renderPanelComments() {
   const comments = myParaComments(curChapter, curPara);
   if (!comments.length) { list.innerHTML = '<p class="cp-empty">No comments yet on this paragraph.</p>'; return; }
   list.innerHTML = comments.map(c => `<div class="cp-item">
+    <button class="cp-delete" onclick="deleteComment('${c.key}')" title="Delete comment">✕</button>
     <div class="cp-meta"><span class="cp-reader">${esc(c.reader)}</span><span><span class="cp-type">${esc(c.type)}</span> ${new Date(c.timestamp).toLocaleDateString()}</span></div>
     <div class="cp-body">${esc(c.text)}</div></div>`).join('');
 }
+function deleteComment(key) {
+  if (!confirm('Delete this comment?')) return;
+  localStorage.removeItem(key);
+  renderPanelComments();
+  // Update marker count
+  if (curPara !== null && curChapter) {
+    const wrap = document.querySelector(`.para-wrap[data-idx="${curPara}"]`);
+    if (wrap) {
+      const cnt = myParaCount(curChapter, curPara);
+      const p = wrap.querySelector('.para-text');
+      if (cnt === 0) {
+        p.classList.remove('has-comment');
+        const mk = wrap.querySelector('.cmk');
+        if (mk) mk.remove();
+      } else {
+        const mk = wrap.querySelector('.cmk');
+        if (mk) mk.textContent = cnt;
+      }
+    }
+  }
+  buildChapList();
+  toast('Comment deleted.');
+}
+
 function pickType(btn) {
   commentType = btn.dataset.t;
   document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('sel'));
@@ -487,9 +535,17 @@ function getBestVoice() {
   return voices.find(v => v.lang.startsWith('en')) || voices[0] || null;
 }
 
+let sessionPaused = false; // true if paused within this session
+
 function ttsToggle() {
   if (ttsPlaying) { ttsPause(); return; }
-  // Show resume modal if there's a saved position > 0
+  // If paused in this session, just resume from current position
+  if (sessionPaused) {
+    sessionPaused = false;
+    ttsPlay();
+    return;
+  }
+  // New session — check for saved position
   const savedPara = getSavedTtsPara();
   if (savedPara > 0) {
     showResumeModal();
@@ -502,6 +558,7 @@ function ttsPlay() {
   if (!curChapter) { toast('Select a chapter first.'); return; }
   if (!window.speechSynthesis) { toast('Text-to-speech not supported in this browser.'); return; }
   ttsPlaying = true;
+  requestWakeLock();
   document.getElementById('tts-btn').textContent = '⏸ Pause';
   document.getElementById('tts-stop-btn').style.display = 'inline-block';
   ttsReadPara(ttsParaIdx);
@@ -509,6 +566,8 @@ function ttsPlay() {
 function ttsPause() {
   saveTtsPos();
   ttsPlaying = false;
+  sessionPaused = true;
+  releaseWakeLock();
   if (window.speechSynthesis) window.speechSynthesis.cancel();
   document.getElementById('tts-btn').textContent = '▶ Resume';
   document.getElementById('tts-status').textContent = 'Paused';
@@ -517,11 +576,13 @@ function ttsPause() {
 function ttsStop() {
   saveTtsPos();
   ttsPlaying = false; ttsParaIdx = 0;
+  releaseWakeLock();
   if (window.speechSynthesis) window.speechSynthesis.cancel();
   document.getElementById('tts-btn').textContent = '▶ Read Aloud';
   document.getElementById('tts-stop-btn').style.display = 'none';
   document.getElementById('tts-status').textContent = '';
   document.querySelectorAll('.para-text').forEach(p => p.classList.remove('tts-active'));
+  updateTtsProgress();
 }
 function ttsReadPara(idx) {
   if (!ttsPlaying || !curChapter) return;
@@ -534,13 +595,15 @@ function ttsReadPara(idx) {
   document.getElementById('tts-status').textContent = `¶ ${idx+1} / ${paras.length}`;
   // Wait for voices to load
   const go = () => {
-    ttsUtt = new SpeechSynthesisUtterance(paras[idx]);
+    const cleanText = preprocessForTTS(paras[idx]);
+    ttsUtt = new SpeechSynthesisUtterance(cleanText);
     ttsUtt.rate = ttsSpd;
-    const voice = getBestVoice();
-    if (voice) ttsUtt.voice = voice;
+    if (selectedVoice) ttsUtt.voice = selectedVoice;
+    else { const v = getBestVoice(); if (v) ttsUtt.voice = v; }
     ttsUtt.onend = () => { if (ttsPlaying) ttsReadPara(idx+1); };
     ttsUtt.onerror = () => { if (ttsPlaying) ttsReadPara(idx+1); };
     window.speechSynthesis.speak(ttsUtt);
+    updateTtsProgress();
   };
   if (window.speechSynthesis.getVoices().length) { go(); }
   else { window.speechSynthesis.onvoiceschanged = go; }
@@ -711,6 +774,187 @@ function toast(msg) {
 }
 
 
+
+// ── ROMAN NUMERAL CONVERSION ──────────────────────────
+const romanMap = {
+  'I':1,'V':5,'X':10,'L':50,'C':100,'D':500,'M':1000
+};
+function romanToArabic(s) {
+  let result = 0, prev = 0;
+  for (let i = s.length - 1; i >= 0; i--) {
+    const val = romanMap[s[i]];
+    if (!val) return null;
+    if (val < prev) result -= val; else result += val;
+    prev = val;
+  }
+  return result;
+}
+function convertSectionHeadings(text) {
+  // Match patterns like "XIV. " or "I. " at start of paragraph
+  return text.replace(/^([IVXLCDM]+)\.\s+/, (match, roman) => {
+    const num = romanToArabic(roman);
+    return num ? num + '. ' : match;
+  });
+}
+function isSectionHeading(text) {
+  return /^([IVXLCDM]+)\.\s+[A-Z]/.test(text) ||
+         /^\d+\.\s+[A-Z]/.test(text);
+}
+
+// ── MIDDLE INITIAL FIX ────────────────────────────────
+function preprocessForTTS(text) {
+  // Remove periods after single capital letters (middle initials, abbreviations)
+  // "J. Smith" -> "J Smith", "Dr. Jones" -> "Dr Jones"  
+  return text
+    .replace(/([A-Z])\.\s/g, '$1 ')   // single capital + period + space
+    .replace(/(Dr|Mr|Mrs|Ms|Prof|St|vs|etc|Vol|No|Ch|pp)\.\s/g, '$1 '); // common abbreviations
+}
+
+// ── VOICE SELECTOR ────────────────────────────────────
+let selectedVoice = null;
+let voicesLoaded = false;
+
+// Priority lists for male and female voices
+const FEMALE_VOICES = [
+  'Microsoft Aria Online','Microsoft Jenny Online','Samantha','Karen',
+  'Google UK English Female','Moira','Victoria','Tessa',
+  'Microsoft Zira','Google US English Female'
+];
+const MALE_VOICES = [
+  'Microsoft Guy Online','Microsoft Davis Online','Daniel','Alex',
+  'Google UK English Male','Tom','Microsoft David',
+  'Google US English Male','Rishi'
+];
+
+function pickTopVoices(voices) {
+  const female = [], male = [];
+  // Try priority lists first
+  for (const name of FEMALE_VOICES) {
+    const v = voices.find(v => v.name.includes(name));
+    if (v && female.length < 2 && !female.includes(v)) female.push(v);
+  }
+  for (const name of MALE_VOICES) {
+    const v = voices.find(v => v.name.includes(name));
+    if (v && male.length < 2 && !male.includes(v)) male.push(v);
+  }
+  // Fill gaps with any English voices
+  const english = voices.filter(v => v.lang.startsWith('en'));
+  for (const v of english) {
+    if (female.length < 2 && !female.includes(v) && !male.includes(v)) female.push(v);
+    if (male.length < 2 && !male.includes(v) && !female.includes(v)) male.push(v);
+    if (female.length >= 2 && male.length >= 2) break;
+  }
+  return { female, male };
+}
+
+function buildVoiceSelector() {
+  const voices = window.speechSynthesis.getVoices();
+  if (!voices.length) return;
+  voicesLoaded = true;
+  const { female, male } = pickTopVoices(voices);
+  const sel = document.getElementById('voice-select');
+  sel.innerHTML = '';
+
+  if (female.length) {
+    const og = document.createElement('optgroup');
+    og.label = 'Female';
+    female.forEach(v => {
+      const opt = document.createElement('option');
+      opt.value = v.name;
+      // Shorten name for display
+      opt.textContent = v.name.replace('Microsoft ','').replace(' Online','').replace('Google ','');
+      og.appendChild(opt);
+    });
+    sel.appendChild(og);
+  }
+  if (male.length) {
+    const og = document.createElement('optgroup');
+    og.label = 'Male';
+    male.forEach(v => {
+      const opt = document.createElement('option');
+      opt.value = v.name;
+      opt.textContent = v.name.replace('Microsoft ','').replace(' Online','').replace('Google ','');
+      og.appendChild(opt);
+    });
+    sel.appendChild(og);
+  }
+
+  // Restore saved preference
+  const saved = localStorage.getItem('fp_voice');
+  if (saved) {
+    const match = voices.find(v => v.name === saved);
+    if (match) { sel.value = saved; selectedVoice = match; return; }
+  }
+  // Default: first female voice if available
+  const allShown = [...female, ...male];
+  if (allShown.length) { selectedVoice = allShown[0]; sel.value = allShown[0].name; }
+}
+
+function ttsVoiceChange(name) {
+  const voices = window.speechSynthesis.getVoices();
+  selectedVoice = voices.find(v => v.name === name) || null;
+  localStorage.setItem('fp_voice', name);
+  // Restart current para with new voice if playing
+  if (ttsPlaying) {
+    const idx = ttsParaIdx;
+    window.speechSynthesis.cancel();
+    setTimeout(() => ttsReadPara(idx), 100);
+  }
+}
+
+// ── WAKE LOCK ─────────────────────────────────────────
+let wakeLock = null;
+async function requestWakeLock() {
+  if ('wakeLock' in navigator) {
+    try { wakeLock = await navigator.wakeLock.request('screen'); } catch(e) {}
+  }
+}
+function releaseWakeLock() {
+  if (wakeLock) { wakeLock.release(); wakeLock = null; }
+}
+// Re-acquire wake lock if page becomes visible again
+document.addEventListener('visibilitychange', async () => {
+  if (document.visibilityState === 'visible' && ttsPlaying) await requestWakeLock();
+});
+
+// ── TTS PROGRESS BAR ─────────────────────────────────
+function updateTtsProgress() {
+  if (!curChapter) return;
+  const total = BOOK[curChapter].length;
+  const pct = total > 0 ? (ttsParaIdx / total) * 100 : 0;
+  const fill = document.getElementById('tts-progress-fill');
+  const label = document.getElementById('tts-progress-label');
+  if (fill) fill.style.width = Math.min(100, pct) + '%';
+  if (label) label.textContent = `¶ ${ttsParaIdx + 1} / ${total}`;
+}
+
+function ttsSeek(e) {
+  if (!curChapter) return;
+  const bar = document.getElementById('tts-progress-bar');
+  const rect = bar.getBoundingClientRect();
+  const pct = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+  const total = BOOK[curChapter].length;
+  const targetIdx = Math.floor(pct * total);
+  const wasPlaying = ttsPlaying;
+  if (ttsPlaying) { ttsPlaying = false; window.speechSynthesis.cancel(); }
+  ttsParaIdx = targetIdx;
+  updateTtsProgress();
+  if (wasPlaying) { ttsPlaying = true; ttsReadPara(ttsParaIdx); }
+  else {
+    // Scroll to paragraph
+    const wrap = document.querySelector(`.para-wrap[data-idx="${targetIdx}"]`);
+    if (wrap) wrap.scrollIntoView({ behavior:'smooth', block:'center' });
+  }
+}
+
+// ── CHAPTER PROGRESS DOTS ────────────────────────────
+function markChapterRead(chId) {
+  localStorage.setItem('fp_read_' + chId, '1');
+}
+function isChapterRead(chId) {
+  return !!localStorage.getItem('fp_read_' + chId);
+}
+
 // ── BOOKMARKS ────────────────────────────────────────
 // Scroll position: saved per reader+chapter
 function scrollKey(chId) { return `fp_scroll_${getReader()}_${chId}`; }
@@ -798,6 +1042,14 @@ function resumeChoice(choice) {
 // ── INIT ─────────────────────────────────────────────
 window.addEventListener('pagehide', saveTtsPos);
 window.addEventListener('beforeunload', saveTtsPos);
+// Build voice selector when voices are ready
+if (window.speechSynthesis) {
+  if (window.speechSynthesis.getVoices().length) {
+    buildVoiceSelector();
+  } else {
+    window.speechSynthesis.onvoiceschanged = buildVoiceSelector;
+  }
+}
 buildChapList();
 const lastCh = localStorage.getItem('fp_lastch_' + (localStorage.getItem('fp_reader')||''));
 loadChapter(lastCh && CHAPTERS.find(c=>c.id===lastCh) ? lastCh : CHAPTERS[0].id);
