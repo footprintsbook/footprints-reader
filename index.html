@@ -23,7 +23,7 @@ body{font-family:Georgia,'Times New Roman',serif;background:var(--paper);color:v
   position:relative;z-index:10;
   flex-shrink:0;
 }
-#sb-head{padding:18px 16px 12px;border-bottom:1px solid rgba(255,255,255,.12);}
+#sb-head{padding:18px 16px 12px 20px;border-bottom:1px solid rgba(255,255,255,.12);}
 #sb-head h1{font-family:Arial,sans-serif;font-size:12px;font-weight:900;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:2px;}
 #sb-head p{font-size:11px;color:rgba(255,255,255,.5);font-family:Arial,sans-serif;}
 #sb-setup{padding:12px 16px;border-bottom:1px solid rgba(255,255,255,.12);}
@@ -42,19 +42,23 @@ body{font-family:Georgia,'Times New Roman',serif;background:var(--paper);color:v
 .sb-btn:hover{background:rgba(255,255,255,.2);}
 .sb-btn.send{background:rgba(184,144,96,.25);border-color:rgba(184,144,96,.5);font-weight:900;}
 .sb-btn.danger{color:rgba(255,180,180,.85);border-color:rgba(255,80,80,.3);}
-.sb-btn.review-btn{color:rgba(255,255,255,.35);border-color:rgba(255,255,255,.1);font-size:11px;}
+.sb-btn.review-btn{color:rgba(255,255,255,.6);border-color:rgba(255,255,255,.2);font-size:13px;font-weight:700;}
 .sb-btn:disabled{opacity:.5;cursor:default;}
 
 /* ── MAIN ── */
 #main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0;}
 
 /* TTS bar */
-#tts-bar{background:var(--cream);border-bottom:1px solid var(--hairline);padding:8px 24px;display:flex;align-items:center;gap:10px;flex-shrink:0;flex-wrap:wrap;position:relative;}
-#tts-progress-wrap{flex:1;min-width:80px;display:flex;flex-direction:column;gap:2px;}
-#tts-progress-bar{height:4px;background:var(--hairline);border-radius:2px;cursor:pointer;position:relative;}
-#tts-progress-fill{height:100%;background:var(--gold);border-radius:2px;width:0%;transition:width .3s;}
+#tts-bar{background:var(--cream);border-bottom:1px solid var(--hairline);padding:6px 12px;display:flex;flex-direction:column;gap:5px;flex-shrink:0;}
+#tts-row1{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+#tts-row2{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+#tts-progress-wrap{flex:1;min-width:120px;display:flex;flex-direction:column;gap:2px;}
+#tts-progress-bar{height:6px;background:var(--hairline);border-radius:3px;cursor:pointer;position:relative;}
+#tts-progress-fill{height:100%;background:var(--gold);border-radius:3px;width:0%;transition:width .3s;}
 #tts-progress-label{font-family:Arial,sans-serif;font-size:10px;color:var(--muted);}
-#voice-select{font-family:Arial,sans-serif;font-size:11px;color:var(--muted);background:transparent;border:1px solid var(--hairline);border-radius:4px;padding:3px 6px;cursor:pointer;max-width:130px;}
+#voice-select{font-family:Arial,sans-serif;font-size:11px;color:var(--muted);background:transparent;border:1px solid var(--hairline);border-radius:4px;padding:3px 6px;cursor:pointer;max-width:140px;}
+#tts-speed-wrap{display:flex;align-items:center;gap:5px;font-family:Arial,sans-serif;font-size:11px;color:var(--muted);}
+#tts-speed{width:70px;}
 #tts-bar button{background:var(--navy);color:#fff;border:none;border-radius:4px;padding:6px 14px;font-family:Arial,sans-serif;font-size:12px;font-weight:700;cursor:pointer;}
 #tts-bar button:hover{background:var(--navy2);}
 #tts-bar button.stop{background:#922;}
@@ -71,9 +75,9 @@ body{font-family:Georgia,'Times New Roman',serif;background:var(--paper);color:v
 #rev-stats{margin-left:auto;font-family:Arial,sans-serif;font-size:12px;color:rgba(255,255,255,.5);}
 
 /* Reader */
-#reader{flex:1;overflow-y:auto;padding:44px 10%;scroll-behavior:smooth;}
+#reader{flex:1;overflow-y:auto;padding:0 10% 44px;scroll-behavior:smooth;}
 @media(max-width:800px){#reader{padding:28px 5%;}}
-#ch-title{font-family:Arial,sans-serif;font-weight:900;font-size:24px;color:var(--navy);margin-bottom:32px;padding-bottom:14px;border-bottom:2px solid var(--hairline);line-height:1.2;position:sticky;top:0;background:var(--paper);z-index:40;padding-top:12px;}
+#ch-title{font-family:Arial,sans-serif;font-weight:900;font-size:24px;color:var(--navy);margin-bottom:32px;padding-bottom:14px;border-bottom:2px solid var(--hairline);line-height:1.2;position:sticky;top:0;background:var(--paper);z-index:40;padding-top:8px;margin-top:0;box-shadow:0 2px 8px rgba(250,250,247,.95);}
 .para-wrap{position:relative;}
 .para-text{font-size:17px;line-height:1.78;color:var(--ink);padding:8px 40px 8px 12px;border-left:3px solid transparent;cursor:pointer;border-radius:2px;transition:background .12s,border-color .12s;}
 .para-text.section-heading{font-family:Arial,sans-serif;font-weight:900;font-size:15px;color:var(--navy);border-left-color:var(--hairline);margin-top:12px;letter-spacing:.01em;}
@@ -103,9 +107,9 @@ body{font-family:Georgia,'Times New Roman',serif;background:var(--paper);color:v
 #cp-close{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);color:#fff;font-size:18px;cursor:pointer;padding:6px 12px;line-height:1;flex-shrink:0;border-radius:4px;font-family:Arial,sans-serif;font-weight:700;}
 #cp-close:hover{background:rgba(255,255,255,.28);}
 #cp-list{flex:1;overflow-y:auto;padding:14px;}
-.cp-item{background:var(--cream);border-radius:5px;padding:11px 13px;margin-bottom:9px;border-left:3px solid var(--gold);position:relative;}
-.cp-delete{position:absolute;top:8px;right:8px;background:none;border:none;color:#aaa;font-size:16px;cursor:pointer;padding:4px 8px;border-radius:3px;line-height:1;}
-.cp-delete:hover{background:rgba(180,0,0,.1);color:#922;}
+.cp-item{background:var(--cream);border-radius:5px;padding:11px 13px;margin-bottom:9px;border-left:3px solid var(--gold);}
+.cp-delete{display:block;margin-top:8px;background:none;border:1px solid #ddd;color:#aaa;font-size:12px;cursor:pointer;padding:4px 10px;border-radius:3px;font-family:Arial,sans-serif;}
+.cp-delete:hover{background:rgba(180,0,0,.08);color:#922;border-color:#f99;}
 .cp-meta{font-family:Arial,sans-serif;font-size:11px;color:var(--muted);margin-bottom:5px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:4px;}
 .cp-reader{font-weight:700;color:var(--navy);}
 .cp-type{background:var(--navy);color:#fff;border-radius:3px;padding:1px 5px;font-size:10px;font-weight:700;}
@@ -179,9 +183,10 @@ body{font-family:Georgia,'Times New Roman',serif;background:var(--paper);color:v
   /* Progress bar full width */
   #prog{left:0;}
   /* Reader padding to clear hamburger */
-  #reader{padding:52px 5% 24px;}
+  #reader{padding:0 5% 24px;}
   /* TTS bar compact */
-  #tts-bar{padding:6px 10px 6px 52px;gap:6px;}
+  #tts-bar{padding:6px 10px 6px 10px;gap:4px;}
+  #tts-row1{padding-left:44px;}
   #tts-status{display:none;}
   #voice-select{max-width:90px;font-size:10px;}
   /* Comment panel full width */
@@ -207,7 +212,7 @@ body{font-family:Georgia,'Times New Roman',serif;background:var(--paper);color:v
   <div id="sb-foot">
     <button class="sb-btn send" id="send-btn" onclick="sendToDrive()">⬆ Send Comments to Adam</button>
     <button class="sb-btn" onclick="downloadBackup()">Download Backup</button>
-    <button class="sb-btn" onclick="document.getElementById('import-inp').click()">Import Comments</button>
+    <button class="sb-btn" onclick="document.getElementById('import-inp').click()">Import Backup Comments</button>
     <input type="file" id="import-inp" accept=".json" style="display:none" onchange="importComments(event)">
     <button class="sb-btn danger" onclick="clearMine()">Clear My Comments</button>
     <button class="sb-btn review-btn" onclick="promptReview()">Author Review Mode</button>
@@ -216,20 +221,24 @@ body{font-family:Georgia,'Times New Roman',serif;background:var(--paper);color:v
 
 <div id="main">
   <div id="tts-bar">
-    <button id="tts-btn" onclick="ttsToggle()">▶ Read Aloud</button>
-    <button id="tts-stop-btn" style="display:none" class="stop" onclick="ttsStop()">■ Stop</button>
-    <div id="tts-progress-wrap">
-      <div id="tts-progress-bar" onclick="ttsSeek(event)" title="Click to jump">
-        <div id="tts-progress-fill"></div>
+    <div id="tts-row1">
+      <button id="tts-btn" onclick="ttsToggle()">▶ Read Aloud</button>
+      <button id="tts-stop-btn" style="display:none" class="stop" onclick="ttsStop()">■ Stop</button>
+      <select id="voice-select" onchange="ttsVoiceChange(this.value)" title="Select voice"></select>
+      <span id="tts-status"></span>
+    </div>
+    <div id="tts-row2">
+      <div id="tts-speed-wrap">
+        Speed <input type="range" id="tts-speed" min="0.5" max="2" step="0.1" value="1.1" oninput="ttsSpeedChange(this.value)">
+        <span id="tts-spd-lbl">1.1×</span>
       </div>
-      <div id="tts-progress-label">¶ 0 / 0</div>
+      <div id="tts-progress-wrap">
+        <div id="tts-progress-bar" onclick="ttsSeek(event)" title="Click to jump">
+          <div id="tts-progress-fill"></div>
+        </div>
+        <div id="tts-progress-label">¶ 0 / 0</div>
+      </div>
     </div>
-    <div id="tts-speed-wrap">
-      Speed <input type="range" id="tts-speed" min="0.5" max="2" step="0.1" value="1.1" oninput="ttsSpeedChange(this.value)">
-      <span id="tts-spd-lbl">1.1×</span>
-    </div>
-    <select id="voice-select" onchange="ttsVoiceChange(this.value)" title="Select voice"></select>
-    <span id="tts-status"></span>
   </div>
   <div id="rev-bar">
     <strong>Author Review</strong>
@@ -461,9 +470,9 @@ function renderPanelComments() {
   const comments = myParaComments(curChapter, curPara);
   if (!comments.length) { list.innerHTML = '<p class="cp-empty">No comments yet on this paragraph.</p>'; return; }
   list.innerHTML = comments.map(c => `<div class="cp-item">
-    <button class="cp-delete" onclick="deleteComment('${c.key}')" title="Delete comment">✕</button>
     <div class="cp-meta"><span class="cp-reader">${esc(c.reader)}</span><span><span class="cp-type">${esc(c.type)}</span> ${new Date(c.timestamp).toLocaleDateString()}</span></div>
-    <div class="cp-body">${esc(c.text)}</div></div>`).join('');
+    <div class="cp-body">${esc(c.text)}</div>
+    <button class="cp-delete" onclick="deleteComment('${c.key}')">Delete</button></div>`).join('');
 }
 function deleteComment(key) {
   if (!confirm('Delete this comment?')) return;
@@ -687,15 +696,18 @@ function clearMine() {
 
 // ── REVIEW MODE ──────────────────────────────────────
 function promptReview() {
-  document.getElementById('pw-input').value='';
+  closeSidebar();
+  const saved = localStorage.getItem('fp_pw_saved');
+  document.getElementById('pw-input').value = saved || '';
   document.getElementById('pw-err').style.display='none';
   document.getElementById('pw-modal').classList.add('open');
-  setTimeout(()=>document.getElementById('pw-input').focus(), 100);
+  setTimeout(() => { if (!saved) document.getElementById('pw-input').focus(); }, 350);
 }
 function closePwModal() { document.getElementById('pw-modal').classList.remove('open'); }
 function pwOk() {
   const val = document.getElementById('pw-input').value;
   if (val === REVIEW_PASSWORD) {
+    localStorage.setItem('fp_pw_saved', val);
     closePwModal();
     enterReview();
   } else {
@@ -1039,6 +1051,34 @@ function resumeChoice(choice) {
   else { ttsParaIdx = 0; }
   ttsPlay();
 }
+
+
+// ── SWIPE CHAPTER NAVIGATION ─────────────────────────
+let swipeStartX = 0, swipeStartY = 0;
+const readerEl = document.getElementById('reader');
+
+readerEl.addEventListener('touchstart', e => {
+  swipeStartX = e.touches[0].clientX;
+  swipeStartY = e.touches[0].clientY;
+}, { passive: true });
+
+readerEl.addEventListener('touchend', e => {
+  const dx = e.changedTouches[0].clientX - swipeStartX;
+  const dy = e.changedTouches[0].clientY - swipeStartY;
+  // Only trigger if horizontal swipe > 80px and more horizontal than vertical
+  if (Math.abs(dx) > 80 && Math.abs(dx) > Math.abs(dy) * 2) {
+    const curIdx = CHAPTERS.findIndex(c => c.id === curChapter);
+    if (dx < 0 && curIdx < CHAPTERS.length - 1) {
+      // Swipe left = next chapter
+      loadChapter(CHAPTERS[curIdx + 1].id);
+      toast('Next: ' + CHAPTERS[curIdx + 1].title);
+    } else if (dx > 0 && curIdx > 0) {
+      // Swipe right = previous chapter
+      loadChapter(CHAPTERS[curIdx - 1].id);
+      toast('Previous: ' + CHAPTERS[curIdx - 1].title);
+    }
+  }
+}, { passive: true });
 
 // ── INIT ─────────────────────────────────────────────
 window.addEventListener('pagehide', saveTtsPos);
