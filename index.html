@@ -889,18 +889,27 @@ const MALE_VOICES = [
 ];
 
 function pickTopVoices(voices) {
+  // Deduplicate by name — Android often returns same voice multiple times
+  const seen = new Set();
+  const unique = voices.filter(v => {
+    if (seen.has(v.name)) return false;
+    seen.add(v.name);
+    return true;
+  });
+
   const female = [], male = [];
+  const english = unique.filter(v => v.lang.startsWith('en') || v.lang === '');
+
   // Try priority lists first
   for (const name of FEMALE_VOICES) {
-    const v = voices.find(v => v.name.includes(name));
+    const v = english.find(v => v.name.includes(name));
     if (v && female.length < 2 && !female.includes(v)) female.push(v);
   }
   for (const name of MALE_VOICES) {
-    const v = voices.find(v => v.name.includes(name));
+    const v = english.find(v => v.name.includes(name));
     if (v && male.length < 2 && !male.includes(v)) male.push(v);
   }
-  // Fill gaps with any English voices
-  const english = voices.filter(v => v.lang.startsWith('en'));
+  // Fill gaps — but only add voices not already in either list
   for (const v of english) {
     if (female.length < 2 && !female.includes(v) && !male.includes(v)) female.push(v);
     if (male.length < 2 && !male.includes(v) && !female.includes(v)) male.push(v);
@@ -914,28 +923,42 @@ function buildVoiceSelector() {
   if (!voices.length) return;
   voicesLoaded = true;
   const { female, male } = pickTopVoices(voices);
+  const allVoices = [...female, ...male];
   const sel = document.getElementById('voice-select');
   sel.innerHTML = '';
 
+  // If only one distinct voice, hide the selector entirely
+  if (allVoices.length <= 1) {
+    sel.style.display = 'none';
+    if (allVoices.length === 1) selectedVoice = allVoices[0];
+    return;
+  }
+  sel.style.display = '';
+
   if (female.length) {
     const og = document.createElement('optgroup');
-    og.label = 'Female';
+    og.label = female.length > 1 ? 'Female' : 'Voice';
     female.forEach(v => {
       const opt = document.createElement('option');
       opt.value = v.name;
-      // Shorten name for display
-      opt.textContent = v.name.replace('Microsoft ','').replace(' Online','').replace('Google ','');
+      opt.textContent = v.name
+        .replace('Microsoft ','').replace(' Online','')
+        .replace('Google ','').replace(' (Enhanced)','')
+        .replace(' (Premium)','');
       og.appendChild(opt);
     });
     sel.appendChild(og);
   }
   if (male.length) {
     const og = document.createElement('optgroup');
-    og.label = 'Male';
+    og.label = male.length > 1 ? 'Male' : 'Voice';
     male.forEach(v => {
       const opt = document.createElement('option');
       opt.value = v.name;
-      opt.textContent = v.name.replace('Microsoft ','').replace(' Online','').replace('Google ','');
+      opt.textContent = v.name
+        .replace('Microsoft ','').replace(' Online','')
+        .replace('Google ','').replace(' (Enhanced)','')
+        .replace(' (Premium)','');
       og.appendChild(opt);
     });
     sel.appendChild(og);
@@ -947,9 +970,8 @@ function buildVoiceSelector() {
     const match = voices.find(v => v.name === saved);
     if (match) { sel.value = saved; selectedVoice = match; return; }
   }
-  // Default: first female voice if available
-  const allShown = [...female, ...male];
-  if (allShown.length) { selectedVoice = allShown[0]; sel.value = allShown[0].name; }
+  // Default: first voice available
+  if (allVoices.length) { selectedVoice = allVoices[0]; sel.value = allVoices[0].name; }
 }
 
 function ttsVoiceChange(name) {
