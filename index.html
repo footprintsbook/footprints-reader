@@ -75,7 +75,7 @@ body{font-family:Georgia,'Times New Roman',serif;background:var(--paper);color:v
 #rev-stats{margin-left:auto;font-family:Arial,sans-serif;font-size:12px;color:rgba(255,255,255,.5);}
 
 /* Reader */
-#reader{flex:1;overflow-y:auto;padding:0 10% 44px;scroll-behavior:smooth;}
+#reader{flex:1;overflow-y:auto;padding:0 10% 44px;}
 /* Persistent visible scrollbar */
 #reader::-webkit-scrollbar{width:6px;}
 #reader::-webkit-scrollbar-track{background:var(--hairline);border-radius:3px;}
@@ -108,22 +108,23 @@ body{font-family:Georgia,'Times New Roman',serif;background:var(--paper);color:v
 #cp-head{background:var(--navy);color:#fff;padding:14px 16px;display:flex;gap:10px;align-items:flex-start;}
 #cp-head-txt{flex:1;}
 #cp-head h3{font-family:Arial,sans-serif;font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.1em;color:var(--gold);margin-bottom:3px;}
-#cp-preview{font-size:12px;color:rgba(255,255,255,.6);font-style:italic;line-height:1.4;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}
+#cp-preview{font-size:13px;color:rgba(255,255,255,.7);font-style:italic;line-height:1.45;max-height:80px;overflow-y:auto;}
 #cp-close{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);color:#fff;font-size:18px;cursor:pointer;padding:6px 12px;line-height:1;flex-shrink:0;border-radius:4px;font-family:Arial,sans-serif;font-weight:700;}
 #cp-close:hover{background:rgba(255,255,255,.28);}
-#cp-list{flex:1;overflow-y:auto;padding:14px;}
+#cp-list{flex:1;overflow-y:auto;padding:14px;-webkit-overflow-scrolling:touch;}
 .cp-item{background:var(--cream);border-radius:5px;padding:11px 13px;margin-bottom:9px;border-left:3px solid var(--gold);}
-.cp-delete{display:block;margin-top:8px;background:none;border:1px solid #ddd;color:#aaa;font-size:12px;cursor:pointer;padding:4px 10px;border-radius:3px;font-family:Arial,sans-serif;}
+.cp-btns{display:flex;gap:6px;margin-top:8px;}
+.cp-delete{background:none;border:1px solid #ddd;color:#aaa;font-size:12px;cursor:pointer;padding:4px 10px;border-radius:3px;font-family:Arial,sans-serif;}
 .cp-delete:hover{background:rgba(180,0,0,.08);color:#922;border-color:#f99;}
+.cp-edit{background:none;border:1px solid #d0cec8;color:#5a5955;font-size:12px;cursor:pointer;padding:4px 10px;border-radius:3px;font-family:Arial,sans-serif;}
+.cp-edit:hover{background:rgba(30,58,95,.08);color:var(--navy);border-color:var(--navy);}
 .cp-meta{font-family:Arial,sans-serif;font-size:11px;color:var(--muted);margin-bottom:5px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:4px;}
 .cp-reader{font-weight:700;color:var(--navy);}
 .cp-type{background:var(--navy);color:#fff;border-radius:3px;padding:1px 5px;font-size:10px;font-weight:700;}
 .cp-body{font-size:14px;line-height:1.5;}
 .cp-empty{text-align:center;color:var(--muted);font-family:Arial,sans-serif;font-size:13px;margin-top:20px;font-style:italic;}
 #cp-new{border-top:1px solid var(--hairline);padding:12px 14px;background:var(--paper);}
-#cp-types{display:flex;gap:5px;margin-bottom:9px;flex-wrap:wrap;}
-.type-btn{background:var(--cream);border:1px solid var(--hairline);color:var(--muted);padding:4px 9px;border-radius:4px;font-family:Arial,sans-serif;font-size:11px;font-weight:700;cursor:pointer;}
-.type-btn.sel{background:var(--navy);border-color:var(--navy);color:#fff;}
+
 #cp-text{width:100%;border:1px solid var(--hairline);border-radius:4px;padding:9px 11px;font-family:Georgia,serif;font-size:14px;line-height:1.5;resize:vertical;min-height:72px;background:#fff;color:var(--ink);margin-bottom:9px;}
 #cp-text:focus{outline:none;border-color:var(--navy);}
 #cp-submit{width:100%;background:var(--navy);color:#fff;border:none;border-radius:4px;padding:9px;font-family:Arial,sans-serif;font-size:13px;font-weight:700;cursor:pointer;}
@@ -198,6 +199,8 @@ body{font-family:Georgia,'Times New Roman',serif;background:var(--paper);color:v
   #tts-speed{width:55px;}
   /* Comment panel full width */
   #cpanel{width:100vw;max-width:100vw;}
+  #cp-head{padding-left:52px;}
+  #cp-head h3{text-align:center;}
 }
 </style>
 </head>
@@ -270,14 +273,7 @@ body{font-family:Georgia,'Times New Roman',serif;background:var(--paper);color:v
   </div>
   <div id="cp-list"></div>
   <div id="cp-new">
-    <div id="cp-types">
-      <button class="type-btn sel" data-t="General" onclick="pickType(this)">General</button>
-      <button class="type-btn" data-t="Lost me here" onclick="pickType(this)">Lost me here</button>
-      <button class="type-btn" data-t="Overclaiming?" onclick="pickType(this)">Overclaiming?</button>
-      <button class="type-btn" data-t="Strong ✓" onclick="pickType(this)">Strong ✓</button>
-      <button class="type-btn" data-t="Question" onclick="pickType(this)">Question</button>
-      <button class="type-btn" data-t="Edit" onclick="pickType(this)">Edit</button>
-    </div>
+
     <textarea id="cp-text" placeholder="Your comment on this paragraph…"></textarea>
     <button id="cp-submit" onclick="submitComment()">Save Comment</button>
   </div>
@@ -468,16 +464,42 @@ function openPanel(idx) {
 function closePanel() {
   document.getElementById('cpanel').classList.remove('open');
   curPara = null;
+  // Reset edit state
+  const submitBtn = document.getElementById('cp-submit');
+  submitBtn.textContent = 'Save Comment';
+  delete submitBtn.dataset.editKey;
+  document.getElementById('cp-text').value = '';
 }
 function renderPanelComments() {
   const list = document.getElementById('cp-list');
   const comments = myParaComments(curChapter, curPara);
   if (!comments.length) { list.innerHTML = '<p class="cp-empty">No comments yet on this paragraph.</p>'; return; }
   list.innerHTML = comments.map(c => `<div class="cp-item">
-    <div class="cp-meta"><span class="cp-reader">${esc(c.reader)}</span><span><span class="cp-type">${esc(c.type)}</span> ${new Date(c.timestamp).toLocaleDateString()}</span></div>
+    <div class="cp-meta"><span class="cp-reader">${esc(c.reader)}</span><span>${new Date(c.timestamp).toLocaleDateString()}</span></div>
     <div class="cp-body">${esc(c.text)}</div>
-    <button class="cp-delete" onclick="deleteComment('${c.key}')">Delete</button></div>`).join('');
+    <div class="cp-btns">
+      <button class="cp-edit" onclick="editComment('${c.key}','${c.text.replace(/'/g,String.fromCharCode(39))}','${c.type}')">Edit</button>
+      <button class="cp-delete" onclick="deleteComment('${c.key}')">Delete</button>
+    </div></div>`).join('');
 }
+function editComment(key, text, type) {
+  // Load the comment into the text field for editing
+  const textEl = document.getElementById('cp-text');
+  textEl.value = text;
+  // Set the comment type
+  commentType = type;
+  document.querySelectorAll('.type-btn').forEach(b => {
+    b.classList.toggle('sel', b.dataset.t === type);
+  });
+  // Change submit button to "Update"
+  const submitBtn = document.getElementById('cp-submit');
+  submitBtn.textContent = 'Update Comment';
+  submitBtn.dataset.editKey = key;
+  // Focus the text area
+  textEl.focus();
+  textEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
 function deleteComment(key) {
   if (!confirm('Delete this comment?')) return;
   localStorage.removeItem(key);
@@ -512,9 +534,24 @@ function submitComment() {
   const text = document.getElementById('cp-text').value.trim();
   if (!text) { toast('Write a comment first.'); return; }
   if (getReader()==='Anonymous') { toast('Enter your name in the sidebar first.'); return; }
-  const ts = Date.now();
-  const data = { reader: getReader(), chapterId: curChapter, paraIdx: curPara, text, type: commentType, timestamp: ts };
-  localStorage.setItem(cKey(data.reader, curChapter, curPara, ts), JSON.stringify(data));
+  const submitBtn = document.getElementById('cp-submit');
+  const editKey = submitBtn.dataset.editKey;
+  if (editKey) {
+    // Update existing comment
+    const existing = JSON.parse(localStorage.getItem(editKey));
+    if (existing) {
+      existing.text = text;
+      existing.type = commentType;
+      localStorage.setItem(editKey, JSON.stringify(existing));
+    }
+    submitBtn.textContent = 'Save Comment';
+    delete submitBtn.dataset.editKey;
+  } else {
+    // New comment
+    const ts = Date.now();
+    const data = { reader: getReader(), chapterId: curChapter, paraIdx: curPara, text, type: commentType, timestamp: ts };
+    localStorage.setItem(cKey(data.reader, curChapter, curPara, ts), JSON.stringify(data));
+  }
   document.getElementById('cp-text').value = '';
   renderPanelComments();
   // Refresh para marker
@@ -605,15 +642,13 @@ function ttsReadPara(idx) {
   document.querySelectorAll('.para-text').forEach((p,i) => p.classList.toggle('tts-active', i===idx));
   const wrap = document.querySelector(`.para-wrap[data-idx="${idx}"]`);
   if (wrap) {
-    // Smooth scroll keeping active paragraph centered in view
-    wrap.scrollIntoView({ behavior:'smooth', block:'nearest' });
-    // If paragraph is near top or bottom, center it
-    const rect = wrap.getBoundingClientRect();
     const reader = document.getElementById('reader');
-    const rRect = reader.getBoundingClientRect();
-    if (rect.top < rRect.top + 80 || rect.bottom > rRect.bottom - 80) {
-      wrap.scrollIntoView({ behavior:'smooth', block:'center' });
-    }
+    const title = document.getElementById('ch-title');
+    const titleH = title ? title.offsetHeight : 0;
+    const wrapTop = wrap.offsetTop;
+    const targetScroll = wrapTop - titleH - 8;
+    // Smooth scroll to put paragraph just below chapter title
+    reader.scrollTo({ top: targetScroll, behavior: 'smooth' });
   }
   document.getElementById('tts-status').textContent = `¶ ${idx+1} / ${paras.length}`;
   // Wait for voices to load
@@ -971,15 +1006,13 @@ function ttsSeek(e) {
     // Scroll to paragraph
     const wrap = document.querySelector(`.para-wrap[data-idx="${targetIdx}"]`);
     if (wrap) {
-    // Smooth scroll keeping active paragraph centered in view
-    wrap.scrollIntoView({ behavior:'smooth', block:'nearest' });
-    // If paragraph is near top or bottom, center it
-    const rect = wrap.getBoundingClientRect();
     const reader = document.getElementById('reader');
-    const rRect = reader.getBoundingClientRect();
-    if (rect.top < rRect.top + 80 || rect.bottom > rRect.bottom - 80) {
-      wrap.scrollIntoView({ behavior:'smooth', block:'center' });
-    }
+    const title = document.getElementById('ch-title');
+    const titleH = title ? title.offsetHeight : 0;
+    const wrapTop = wrap.offsetTop;
+    const targetScroll = wrapTop - titleH - 8;
+    // Smooth scroll to put paragraph just below chapter title
+    reader.scrollTo({ top: targetScroll, behavior: 'smooth' });
   }
   }
 }
@@ -1006,9 +1039,12 @@ function saveScrollPos() {
 function restoreScrollPos(chId) {
   const saved = localStorage.getItem(scrollKey(chId));
   if (saved) {
-    setTimeout(() => {
-      document.getElementById('reader').scrollTop = parseInt(saved);
-    }, 60); // after render
+    // Use requestAnimationFrame to ensure DOM is rendered, then instant jump
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        document.getElementById('reader').scrollTop = parseInt(saved);
+      });
+    });
   }
 }
 
